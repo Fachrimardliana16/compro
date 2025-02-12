@@ -1,0 +1,52 @@
+version: "3"
+services:
+    # PHP Service
+    app:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: compro_app
+        restart: unless-stopped
+        working_dir: /var/www/
+        volumes:
+            - ./:/var/www
+        networks:
+            - laravel_network
+
+    # Nginx Service
+    nginx:
+        image: nginx:alpine
+        container_name: compro_nginx
+        restart: unless-stopped
+        ports:
+            - "8000:80"
+        volumes:
+            - ./:/var/www
+            - ./docker/nginx/conf.d/:/etc/nginx/conf.d/
+        networks:
+            - laravel_network
+
+    # MySQL Service
+    db:
+        image: mysql:8.0
+        container_name: compro_db
+        restart: unless-stopped
+        environment:
+            MYSQL_DATABASE: compro
+            MYSQL_ROOT_PASSWORD: Fachri@161096
+        volumes:
+            - dbdata:/var/lib/mysql
+        ports:
+            - "3306:3306"
+        networks:
+            - laravel_network
+
+# Docker Volumes
+volumes:
+    dbdata:
+        driver: local
+
+# Docker Networks
+networks:
+    laravel_network:
+        driver: bridge
